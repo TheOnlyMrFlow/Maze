@@ -1,6 +1,6 @@
 import java.util.List;
 
-public interface DiGraph<Vertex, Edge> {
+public interface IDiGraph<Vertex, Edge> {
 
 	public void addVertex(Vertex v);
 	public List<Vertex> getVertices();

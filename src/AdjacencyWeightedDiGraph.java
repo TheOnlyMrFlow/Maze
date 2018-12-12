@@ -9,27 +9,28 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
-public class AdjacencyWeightedDiGraph<Vertex, Edge>  extends AdjacencyDiGraph<Vertex, Edge> implements WeightedDiGraph<Vertex, Edge> {
+public class AdjacencyWeightedDiGraph<Vertex, Edge>  extends AdjacencyDiGraph<Vertex, Edge> implements IWeightedDiGraph<Vertex, Edge> {
 
 	protected Map<Edge, Integer> edgesToWeight= new HashMap<Edge, Integer>();
-
 	
-	
+	public AdjacencyWeightedDiGraph(IDistanceHeuristic heuristicStrategy, IVertexVisitor[] allEncounteredCellsVisitors, IVertexVisitor[] onShortestPathVisitors) {
+		super(heuristicStrategy, allEncounteredCellsVisitors, onShortestPathVisitors);
+	}
 	
 	@Override 
 	public void addEdge(Edge e, Vertex src, Vertex dest) {
-		super.addEdge(e, src, dest);
-		this.edgesToWeight.put(e, 1);
+		this.addEdge(e, src, dest, 1);
 		
 	}
 	
 	public void addEdge(Edge e, Vertex src, Vertex dest, int w) {
-		this.addEdge(e, src, dest);
+		super.addEdge(e, src, dest);
 		this.edgesToWeight.put(e, w);
 		
 	}
 
-	public int getDistBetween(Vertex from, Vertex to) {
+	@Override
+	protected int getDistBetween(Vertex from, Vertex to) {
 		
 		for(Edge e : edges) {
 			if (edgeToSrc.get(e).equals(from) && edgeToDest.get(e).equals(to)) {
@@ -45,10 +46,10 @@ public class AdjacencyWeightedDiGraph<Vertex, Edge>  extends AdjacencyDiGraph<Ve
 	
 	@Override
 	public List<Vertex> shortestPath(Vertex src, Vertex dest){
-				
-		HashMap<Vertex, Vertex> historyMap = new HashMap<Vertex, Vertex>();
-		HashMap<Vertex, Integer> distancesMap = new HashMap<Vertex, Integer>();
-		distancesMap.put(src, 0);
+		
+		this.historyMap = new HashMap<Vertex, Vertex>();
+		this.distancesMap = new HashMap<Vertex, Integer>();
+		
 		
 		Comparator<Vertex> vertexComparators = new Comparator<Vertex>() {
             @Override
@@ -57,82 +58,14 @@ public class AdjacencyWeightedDiGraph<Vertex, Edge>  extends AdjacencyDiGraph<Ve
             }
         };
         
-		Queue<Vertex> toVisitQueue = new PriorityQueue<Vertex>(vertexComparators);
+		this.toVisitQueue = new PriorityQueue<Vertex>(vertexComparators);
 		
-		toVisitQueue.add(src);
-		Vertex visiting = null;
-		while (visiting != dest && !toVisitQueue.isEmpty()) {
-						
-			visiting = toVisitQueue.remove();
-			System.out.println("visiting " + visiting + " that has a distance of " + distancesMap.get(visiting));
-
-			if(visiting.equals(dest)) {
-				LinkedList<Vertex> path = new LinkedList<Vertex>();
-				path.addFirst(visiting);
-				while(path.getFirst() != src) {
-					path.addFirst(historyMap.get(path.getFirst()));
-				}
-				System.out.println("Total cost = " + distancesMap.get(visiting));
-				return new ArrayList(path);
-			}
-			
-			for (Vertex v : this.getAdjacentVertices(visiting)) {
-				if (!historyMap.containsKey(v) || v.equals(dest)) {
-					historyMap.put(v, visiting);
-					distancesMap.put(v, getDistBetween(visiting, v) + distancesMap.get(visiting));
-					toVisitQueue.add(v);
-				}
-			}
-		}
-		return new ArrayList<Vertex>();
-	}
-	
-	public List<Vertex> shortestPath(Vertex src, Vertex dest, DistanceHeuristic<Vertex> h){
-		
-		HashMap<Vertex, Vertex> historyMap = new HashMap<Vertex, Vertex>();
-		HashMap<Vertex, Integer> distancesMap = new HashMap<Vertex, Integer>();
-		distancesMap.put(src, 0);
-		
-		Comparator<Vertex> vertexComparators = new Comparator<Vertex>() {
-            @Override
-            public int compare(Vertex v1, Vertex v2) {
-            	return distancesMap.get(v1) - distancesMap.get(v2);
-            }
-        };
-        
-		Queue<Vertex> toVisitQueue = new PriorityQueue<Vertex>(vertexComparators);
-		
-		toVisitQueue.add(src);
-		Vertex visiting = null;
-		while (visiting != dest && !toVisitQueue.isEmpty()) {
-			
-			visiting = toVisitQueue.remove();
-			System.out.println("visiting " + visiting + " that has a heuristic distance of " + distancesMap.get(visiting));
-			
-			if(visiting.equals(dest)) {
-				LinkedList<Vertex> path = new LinkedList<Vertex>();
-				path.addFirst(visiting);
-				while(path.getFirst() != src) {
-					path.addFirst(historyMap.get(path.getFirst()));
-				}
-				System.out.println("Total cost = " + distancesMap.get(visiting));
-				return new ArrayList(path);
-			}
-			
-			for (Vertex v : this.getAdjacentVertices(visiting)) {
-				if (!historyMap.containsKey(v) || v.equals(dest)) {
-					historyMap.put(v, visiting);
-					distancesMap.put(v, getDistBetween(visiting, v) + distancesMap.get(visiting) - h.distance(visiting, src) + h.distance(v, src));
-					toVisitQueue.add(v);
-				}
-			}
-		}
-		return new ArrayList<Vertex>();
+		return this.shortestPathBase(src,  dest);
 	}
 	
 	
-	public List<Vertex> shortestPath(String src, String dest, DistanceHeuristic<Vertex> h){
-		return shortestPath(getVertexByName(src), getVertexByName(dest), h);
+	public List<Vertex> shortestPath(String src, String dest){
+		return shortestPath(getVertexByName(src), getVertexByName(dest));
 		
 	}
 	
