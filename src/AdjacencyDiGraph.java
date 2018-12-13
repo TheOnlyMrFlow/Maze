@@ -132,6 +132,7 @@ public class AdjacencyDiGraph<Vertex, Edge> implements IDiGraph<Vertex, Edge> {
 
 	}
 	
+	
 	protected List<Vertex> shortestPathBase(Vertex src, Vertex dest) {
 		toVisitQueue.add(src);
 		distancesMap.put(src, 0);
@@ -163,8 +164,8 @@ public class AdjacencyDiGraph<Vertex, Edge> implements IDiGraph<Vertex, Edge> {
 					distancesMap.put(	v,
 										getDistBetween(visiting, v) 
 										+ distancesMap.get(visiting)
-										- this.heuristicStrategy.distance(visiting, src)
-										+ this.heuristicStrategy.distance(v, src));
+										- this.heuristicStrategy.distance(visiting, dest)
+										+ this.heuristicStrategy.distance(v, dest));
 					toVisitQueue.add(v);
 				}
 			}

@@ -54,30 +54,36 @@ public class SquareMaze{
 			res.append(c);
 			res.append(sep);
 		}
+		res.delete(res.length() - sep.length(), res.length());
 		return res.toString();
 	}
 	public static void main(String[] args) throws IOException{
 		try(InputStream is = args.length==0 ? System.in
 				: new FileInputStream(new File(args[0]))){
 			MazeFactory diGraphFactory = new MazeFactory(); 
+			
+			CounterVisitor countAll = new CounterVisitor();
+			TrackerVisitor trackPath = new TrackerVisitor();
+			
+
 			List<IVertexVisitor<Cell>> allCellsVisitors = new ArrayList<IVertexVisitor<Cell>>();
-			//allCellsVisitors.add(new CounterVisitor());
+			allCellsVisitors.add(countAll);
 			//allCellsVisitors.add(new PrinterVisitor());
 			List<IVertexVisitor<Cell>> onPathVisitors = new ArrayList<IVertexVisitor<Cell>>();
-			//onPathVisitors.add(new CounterVisitor());
+			onPathVisitors.add(trackPath);
 			//onPathVisitors.add(new PrinterVisitor());
 			//onPathVisitors.add(new TrackerVisitor());
-
 			
-			IDiGraph<Cell, Integer> maze= (diGraphFactory.generate(
+			IDiGraph<Cell, Integer> maze= diGraphFactory.generate(
 					is,
 					false,
 					new ManhattanDistance(),
 					allCellsVisitors.toArray( (IVertexVisitor<Cell>[]) new IVertexVisitor[allCellsVisitors.size()]),
-					onPathVisitors.toArray( (IVertexVisitor<Cell>[]) new IVertexVisitor[0])));
+					onPathVisitors.toArray( (IVertexVisitor<Cell>[]) new IVertexVisitor[0]));
 			System.out.println("working with maze:\n"+mazeToString(maze));
 			System.out.println("A and B are connected ? :" + maze.areConnected("A", "B"));
-			System.out.println("Shortest path from A to B :" + pathToString(maze.shortestPath("A", "B"), "=>"));
+			maze.shortestPath("A", "B");
+			System.out.println("Shortest path from A to B :" + pathToString(trackPath.getVisited(), "=>"));
 		}
 	}
 }

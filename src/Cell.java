@@ -13,7 +13,7 @@ class Cell implements Comparable<Cell> {
 	}
 	@Override
 	public int hashCode(){
-		return c^r;
+		return c^(r >>> 32);
 	}
 	@Override
 	public boolean equals(Object other){

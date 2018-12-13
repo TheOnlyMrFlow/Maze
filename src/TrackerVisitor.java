@@ -1,18 +1,19 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TrackerVisitor implements IVertexVisitor<Cell> {
 	
-	private List<Cell> visited = new ArrayList<Cell>();
+	private LinkedList<Cell> visited = new LinkedList<Cell>();
 	
 	public void visit(Cell v) {
 		
-		this.visited.add(v);
+		this.visited.addFirst(v);
 		
 	}
 	
-	public Cell[] getVisited() {
-		return (Cell[]) visited.toArray();
+	public List<Cell> getVisited() {
+		return visited;
 	}
 
 }
